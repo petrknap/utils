@@ -11,7 +11,7 @@
  * @category ImageProcessing
  * @package  PetrKnap\Utils\ImageProcessing
  * @version  8.11
- * @license  http://opensource.org/licenses/ms-pl.html MS-PL
+ * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  * @homepage http://dev.petrknap.cz/Image.class.php.html
  * @example  Image.example.php Example usage
  *
@@ -24,13 +24,14 @@
  * @property int TransparentColor Transparent color in hexadecimal `0xAARRGGBB` (ARGB) format
  * @property int JpgQuality JPG quality in percents (from 1 to 100)
  *
- * @change   8.11 Moved to `PetrKnap\Utils\ImageProcessing`
- * @change   8.11 Fully translated PhpDocs
- * @change   8.10 Added method `fromResource`:[#method_fromResource]
- * @change   8.10 Added method `setImage`:[#method_setImage]
- * @change   8.9  Added method `rotate`:[#method_rotate]
- * @change   8.9  Added method `rotateLeft`:[#method_rotateLeft]
- * @change   8.9  Added method `rotateRight`:[#method_rotateRight]
+ * @change 8.11 Changed licensing from "MS-PL":[http://opensource.org/licenses/ms-pl.html] to "MIT":[https://github.com/petrknap/utils/blob/master/LICENSE]
+ * @change 8.11 Moved to `PetrKnap\Utils\ImageProcessing`
+ * @change 8.11 Fully translated PhpDocs
+ * @change 8.10 Added method `fromResource`:[#method_fromResource]
+ * @change 8.10 Added method `setImage`:[#method_setImage]
+ * @change 8.9  Added method `rotate`:[#method_rotate]
+ * @change 8.9  Added method `rotateLeft`:[#method_rotateLeft]
+ * @change 8.9  Added method `rotateRight`:[#method_rotateRight]
  */
 class Image
 {

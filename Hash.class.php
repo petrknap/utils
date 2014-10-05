@@ -10,11 +10,12 @@
  * @category Security
  * @package  PetrKnap\Utils\Security
  * @version  0.7
- * @license  http://opensource.org/licenses/ms-pl.html MS-PL
+ * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  * @homepage http://dev.petrknap.cz/Hash.class.php.html
  * @see      http://www.aspnet.cz/articles/93-uchovavani-hesel-ve-webovych-aplikacich
  * @example  Hash.example.php Example usage
  *
+ * @change 0.7 Changed licensing from "MS-PL":[http://opensource.org/licenses/ms-pl.html] to "MIT":[https://github.com/petrknap/utils/blob/master/LICENSE]
  * @change 0.7 Moved to `PetrKnap\Utils\Security`
  * @change 0.7 Fully translated PhpDoc
  * @change 0.6 Added support for URL like B64 outputs

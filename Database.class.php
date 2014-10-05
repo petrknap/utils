@@ -7,7 +7,7 @@
  * @category DataStorage
  * @package  PetrKnap\Utils\DataStorage
  * @version  2.2.3
- * @license  http://opensource.org/licenses/ms-pl.html MS-PL
+ * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  * @homepage http://dev.petrknap.cz/Database.class.php.html
  * @example  Database.example.php Basic usage example
  *
@@ -21,6 +21,7 @@
  * @property string CharacterSet The encoding of your database
  * @property bool AmICareful Are you careful?
  *
+ * @change 2.2.3 Changed licensing from "MS-PL":[http://opensource.org/licenses/ms-pl.html] to "MIT":[https://github.com/petrknap/utils/blob/master/LICENSE]
  * @change 2.2.3 Moved to `PetrKnap\Utils\DataStorage`
  * @change 2.2.3 Added property `DBName`:[#property_DBName]
  * @change 2.2.2 Fully translated PhpDocs
