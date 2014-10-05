@@ -11,7 +11,7 @@
  * @package  PetrKnap\Utils\Security
  * @version  0.7
  * @license  http://opensource.org/licenses/ms-pl.html MS-PL
- * @homepage http://dev.petrknap.cz/Database.class.php.html
+ * @homepage http://dev.petrknap.cz/Hash.class.php.html
  * @see      http://www.aspnet.cz/articles/93-uchovavani-hesel-ve-webovych-aplikacich
  * @example  Hash.example.php Example usage
  *
