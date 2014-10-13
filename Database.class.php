@@ -6,7 +6,7 @@
  * @since    2013-06-03
  * @category DataStorage
  * @package  PetrKnap\Utils\DataStorage
- * @version  2.2.3
+ * @version  2.2.4
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  * @homepage http://dev.petrknap.cz/Database.class.php.html
  * @example  Database.example.php Basic usage example
@@ -20,7 +20,10 @@
  * @property string Password  The password
  * @property string CharacterSet The encoding of your database
  * @property bool AmICareful Are you careful?
+ * @property string LastInsertId The ID of the last inserted row or sequence value
  *
+ * @change 2.2.4 Added method `lastInsertId`:[#method_lastInsertId]
+ * @change 2.2.4 Added property `LastInsertId`:[#property_LastInsertId]
  * @change 2.2.3 Changed licensing from "MS-PL":[http://opensource.org/licenses/ms-pl.html] to "MIT":[https://github.com/petrknap/utils/blob/master/LICENSE]
  * @change 2.2.3 Moved to `PetrKnap\Utils\DataStorage`
  * @change 2.2.3 Added property `DBName`:[#property_DBName]
@@ -94,6 +97,8 @@ class Database
                 return $this->characterSet;
             case "AmICareful":
                 return $this->amICareful;
+            case "LastInsertId":
+                return $this->lastInsertId();
             case "Password":
                 throw new \Exception("Variable $" . $name . " is private.");
                 break;
@@ -137,6 +142,9 @@ class Database
                 break;
             case "AmICareful":
                 $this->roSet("amICareful", $value);
+                break;
+            case "LastInsertId":
+                throw new \Exception("Variable $" . $name . " is readonly.");
                 break;
             default:
                 throw new \Exception("Variable $" . $name . " not found.");
@@ -200,6 +208,16 @@ class Database
     public function IWillBeCareful()
     {
         $this->amICareful = true;
+    }
+
+    /**
+     * Returns the ID of the last inserted row or sequence value
+     *
+     * @param string $name Name of the sequence object from which the ID should be returned
+     * @return string Returns a string representing the row ID of the last row that was inserted into the database
+     */
+    public function lastInsertId($name = null) {
+        return $this->phpDataObject->lastInsertId($name);
     }
 
     /**
