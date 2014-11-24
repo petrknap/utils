@@ -117,7 +117,7 @@ class SignedData
         try {
             return unserialize($this->unsignedData);
         } catch (\Exception $e) {
-            throw new SignedDataException($e->getMessage(), SignedDataException::InvalidData, $e);
+            throw new SignedDataException($e->getMessage(), SignedDataException::InvalidDataException, $e);
         }
     }
 
@@ -193,7 +193,7 @@ class SignedData
         $new->setUnsignedData($this->UnsignedData);
         $isTrusted = ($new->SignedData == $this->SignedData);
         if (!$isTrusted && !self::$ALLOW_UNTRUSTED_DATA) {
-            throw new SignedDataException("Untrusted data", SignedDataException::UntrustedData);
+            throw new SignedDataException("Untrusted data", SignedDataException::UntrustedDataException);
         }
         return $isTrusted;
     }
@@ -203,9 +203,9 @@ class SignedData
 class SignedDataException extends \Exception
 {
     const
-        Generic = 0,
-        InvalidData = 1,
-        UntrustedData = 2;
+        GenericException = 0,
+        InvalidDataException = 1,
+        UntrustedDataException = 2;
 }
 
 #region Backward compatibility

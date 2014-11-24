@@ -36,7 +36,7 @@ class SignedDataTest extends PHPUnit_Framework_TestCase
                 $this->assertEquals($data, $C->UnsignedData);
             }
         } catch(SignedDataException $sde) {
-            $this->assertEquals(SignedDataException::UntrustedData, $sde->getCode());
+            $this->assertEquals(SignedDataException::UntrustedDataException, $sde->getCode());
         }
 
         // Invalid data
@@ -46,7 +46,7 @@ class SignedDataTest extends PHPUnit_Framework_TestCase
             $D->SignedData = substr($A->SignedData, 0, -1) . $lastChar == "a" ? "b" : "a";
             $this->fail("Invalid data doesn't throw exception.");
         } catch(SignedDataException $sde) {
-            $this->assertEquals(SignedDataException::UntrustedData, $sde->getCode());
+            $this->assertEquals(SignedDataException::UntrustedDataException, $sde->getCode());
         }
 
         // Invalid signature
@@ -56,7 +56,7 @@ class SignedDataTest extends PHPUnit_Framework_TestCase
             $E->SignedData = $firstChar == "a" ? "b" : "a" . substr($A->SignedData, 1);
             $this->fail("Invalid signature doesn't throw exception.");
         } catch(SignedDataException $sde) {
-            $this->assertEquals(SignedDataException::UntrustedData, $sde->getCode());
+            $this->assertEquals(SignedDataException::UntrustedDataException, $sde->getCode());
         }
 
     }
