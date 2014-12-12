@@ -3,7 +3,7 @@
 use PetrKnap\Utils\DataStorage\Database;
 use PetrKnap\Utils\DataStorage\DatabaseException;
 
-require_once("../Database.class.php");
+require_once(__DIR__ . "/../../DataStorage/Database.class.php");
 
 class DatabaseTest extends PHPUnit_Framework_TestCase
 {
