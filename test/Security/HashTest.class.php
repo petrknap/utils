@@ -1,8 +1,8 @@
 <?php
 
-require_once("../Hash.class.php");
-
 use PetrKnap\Utils\Security\Hash;
+
+require_once(__DIR__ . "/../../Security/Hash.class.php");
 
 class HashTest extends PHPUnit_Framework_TestCase
 {
