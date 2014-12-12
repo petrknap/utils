@@ -1,10 +1,10 @@
 <?php
 
-require_once("../Hash.class.php");
-require_once("../SignedData.class.php");
-
 use PetrKnap\Utils\Security\SignedData;
 use PetrKnap\Utils\Security\SignedDataException;
+
+require_once(__DIR__ . "/../../Security/Hash.class.php");
+require_once(__DIR__ . "/../../Security/SignedData.class.php");
 
 class SignedDataTest extends PHPUnit_Framework_TestCase
 {
@@ -99,7 +99,7 @@ class SignedDataTest extends PHPUnit_Framework_TestCase
     public function test_outputSize() {
         $sd = new SignedData();
 
-        for($i = 0, $data = "string"; $i < 25; $i++, $data .= $data) {
+        for($i = 0, $data = "string"; $i < 10; $i++, $data .= $data) {
             $sd->UnsignedData = $data;
             $expectedSize = strlen($data);
             $expectedSize = $expectedSize > SignedData::SIGNATURE_LENGTH ? $expectedSize : SignedData::SIGNATURE_LENGTH;
