@@ -17,7 +17,7 @@ class HashTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function test_B64SHA512()
+    public function testBase64Sha512Works()
     {
         $this->hash_test(
             function ($a) {
@@ -31,7 +31,7 @@ class HashTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    public function test_B64SHA384()
+    public function testBase64Sha384Works()
     {
         $this->hash_test(
             function ($a) {
@@ -45,7 +45,7 @@ class HashTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    public function test_B64SHA256()
+    public function testBase64Sha256Works()
     {
         $this->hash_test(
             function ($a) {
@@ -59,7 +59,7 @@ class HashTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    public function test_B64SHA1()
+    public function testBase64Sha1Works()
     {
         $this->hash_test(
             function ($a) {
@@ -73,7 +73,7 @@ class HashTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    public function test_B64MD5()
+    public function testBase64Md5Works()
     {
         $this->hash_test(
             function ($a) {
@@ -87,7 +87,7 @@ class HashTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    public function test_RandomBytes()
+    public function testRandomByteGeneratorWorks()
     {
         for ($i = 0; $i < 10; $i++) {
             $first = Hash::RandomBytes($i + 1);
@@ -101,7 +101,7 @@ class HashTest extends PHPUnit_Framework_TestCase
     }
 
 
-    public function test_B642URL_URL2B64()
+    public function testBase64ToUrlAndUrlToBase64ConvertersWork()
     {
         $s1 = "This+isn/t+valid+B64==";
         $s2 = Hash::B642URL($s1);
