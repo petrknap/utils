@@ -11,6 +11,7 @@
  * @homepage http://dev.petrknap.cz/Database.class.php.html
  * @example  Database.example.php Basic usage example
  *
+ * @property bool IsConnected True if connection to database is active, otherwise false.
  * @property \PDO PhpDataObject Instance of PHP Data Object
  * @property int Type Type of your database - This value must be one of the TYPE_* constants, defaults to Type_MySQL
  * @property \Exception[] Warnings Array of exceptions throw at background
@@ -22,6 +23,7 @@
  * @property bool AmICareful Are you careful?
  * @property string LastInsertId The ID of the last inserted row or sequence value
  *
+ * @change 2.3.1 Added property `IsConnected`:[#property_IsConnected]
  * @change 2.3.0 Used `DatabaseException` instead of `\Exception`
  * @change 2.3.0 Added method `BeginTransaction`["#method_BeginTransaction"]
  * @change 2.3.0 Added method `Commit`["#method_Commit"]
@@ -87,6 +89,8 @@ class Database
     public function __get($name)
     {
         switch ($name) {
+            case "IsConnected":
+                return $this->phpDataObject !== null;
             case "PhpDataObject":
                 return $this->phpDataObject;
             case "Type":
