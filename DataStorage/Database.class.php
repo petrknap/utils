@@ -6,7 +6,7 @@
  * @since    2013-06-03
  * @category DataStorage
  * @package  PetrKnap\Utils\DataStorage
- * @version  2.3.1
+ * @version  2.3.2
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  * @homepage http://dev.petrknap.cz/Database.class.php.html
  * @example  Database.example.php Basic usage example
@@ -23,6 +23,7 @@
  * @property bool AmICareful Are you careful?
  * @property string LastInsertId The ID of the last inserted row or sequence value
  *
+ * @change 2.3.2 Added method `CreateQuery`["#method_CreateQuery"]
  * @change 2.3.1 Fixed `Query`["#method_Query"] method
  * @change 2.3.1 Added property `IsConnected`:[#property_IsConnected]
  * @change 2.3.0 Used `DatabaseException` instead of `\Exception`
@@ -292,6 +293,38 @@ class Database
         }
 
         return $statement;
+    }
+
+    /**
+     * Converts create query into correct dialect and execute the modified version
+     *
+     * @param string $query This must be a valid SQL statement for the target database server
+     * @param int $type Type of your dialect - This value must be one of the TYPE_* constants
+     * @return \PDOStatement
+     * @throws DatabaseException
+     */
+    public function CreateQuery($query, $type) {
+        if($type !== $this->type) {
+            $compatibilityLayer = array(
+                self::TYPE_MySQL => array(
+                    self::TYPE_SQLite => array(
+                        "TIMESTAMP" => "DATETIME",
+                        "AUTO_INCREMENT" => "AUTOINCREMENT",
+                        "BIT" => "INTEGER"
+                    )
+                ),
+                self::TYPE_SQLite => array(
+                    self::TYPE_MySQL => array(
+                        "DATETIME" => "TIMESTAMP",
+                        "AUTOINCREMENT" => "AUTO_INCREMENT"
+                    )
+                )
+            );
+            foreach($compatibilityLayer[$type][$this->type] as $a => $b) {
+                $query = str_replace($a, $b, $query);
+            }
+        }
+        return $this->Query($query);
     }
 
     /**
