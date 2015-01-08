@@ -6,7 +6,7 @@
  * @since    2013-06-03
  * @category DataStorage
  * @package  PetrKnap\Utils\DataStorage
- * @version  2.3.0
+ * @version  2.3.1
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  * @homepage http://dev.petrknap.cz/Database.class.php.html
  * @example  Database.example.php Basic usage example
@@ -23,6 +23,7 @@
  * @property bool AmICareful Are you careful?
  * @property string LastInsertId The ID of the last inserted row or sequence value
  *
+ * @change 2.3.1 Fixed `Query`["#method_Query"] method
  * @change 2.3.1 Added property `IsConnected`:[#property_IsConnected]
  * @change 2.3.0 Used `DatabaseException` instead of `\Exception`
  * @change 2.3.0 Added method `BeginTransaction`["#method_BeginTransaction"]
@@ -281,9 +282,14 @@ class Database
         }
         $this->amICareful = false;
 
-        $statement = $this->getPDO()->prepare($query);
-        if (!is_array($params)) $params = array($params);
-        $statement->execute($params);
+        try {
+            $statement = $this->getPDO()->prepare($query);
+            if (!is_array($params)) $params = array($params);
+            $statement->execute($params);
+        }
+        catch(\PDOException $ex) {
+            throw new DatabaseException($ex->getMessage(), DatabaseException::PDOException, $ex);
+        }
 
         return $statement;
     }
