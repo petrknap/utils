@@ -9,12 +9,13 @@
  * @since    2012-04-15
  * @category Security
  * @package  PetrKnap\Utils\Security
- * @version  0.7
+ * @version  1.0
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
- * @homepage http://dev.petrknap.cz/Hash.class.php.html
+ * @homepage http://dev.petrknap.cz/Security/Hash.php.html
  * @see      http://www.aspnet.cz/articles/93-uchovavani-hesel-ve-webovych-aplikacich
- * @example  Hash.example.php Example usage
+ * @example  HashTest.php Test cases
  *
+ * @change 1.0 Removed backward compatibility with alpha versions 0.*
  * @change 0.7 Changed licensing from "MS-PL":[http://opensource.org/licenses/ms-pl.html] to "MIT":[https://github.com/petrknap/utils/blob/master/LICENSE]
  * @change 0.7 Moved to `PetrKnap\Utils\Security`
  * @change 0.7 Fully translated PhpDoc
@@ -179,9 +180,3 @@ class Hash {
     }
 
 }
-
-#region Backward compatibility
-namespace PetrKnap\IndependentClass;
-
-class Hash extends \PetrKnap\Utils\Security\Hash {}
-#endregion
