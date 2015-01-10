@@ -4,12 +4,14 @@
  * Simple PHP class that provides methods for preparing HTTP responses
  *
  * @author   Petr Knap <dev@petrknap.cz>
- * @since    2015-04-09
+ * @since    2015-01-09
  * @category Security
  * @package  PetrKnap\Utils\Network
- * @version  0.1
+ * @version  0.2
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  * @homepage http://dev.petrknap.cz/HttpResponse.class.php.html
+ *
+ * @change 0.2 Void returning methods now returns $this
  */
 class HttpResponse
 {
@@ -35,10 +37,13 @@ class HttpResponse
      * Sets header into headers collection
      *
      * @param string $header
+     * @return $this
      */
     public function setHeader($header) {
         $haystack = explode(":", $header);
         $this->headers[$haystack[0]] = $header;
+
+        return $this;
     }
 
     /**
@@ -54,9 +59,12 @@ class HttpResponse
      * Sets content
      *
      * @param mixed $content
+     * @return $this
      */
     public function setContent($content) {
         $this->content = $content;
+
+        return $this;
     }
 
     /**
