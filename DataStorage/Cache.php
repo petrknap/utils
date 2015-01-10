@@ -12,7 +12,7 @@
  * @version  0.2
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  * @homepage http://dev.petrknap.cz/DataStorage/Cache.php.html
- * @example  CacheTest.php Basic usage example
+ * @example  CacheTest.php Test cases
  * @property string Prefix The cache prefix
  * @property bool DebugMode Debug mode flag
  *
