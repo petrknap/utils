@@ -5,7 +5,7 @@
  *
  * @author   Petr Knap <dev@petrknap.cz>
  * @since    2015-01-09
- * @category Security
+ * @category Network
  * @package  PetrKnap\Utils\Network
  * @version  0.2
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
