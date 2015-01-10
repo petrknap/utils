@@ -10,7 +10,7 @@
  * @since    2012-07-24
  * @category Security
  * @package  PetrKnap\Utils\Security
- * @version  1.4.0
+ * @version  1.4.1
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  * @example  SignedData.example.php Example usage
  * @property mixed UnsignedData Unsigned data
@@ -19,6 +19,7 @@
  * @property mixed SaltPrefix Salt for better security (inserted before data)
  * @property mixed SaltSuffix Salt for better security (inserted after data)
  *
+ * @change 1.4.1 Removed backward compatibility with versions 1.3.*
  * @change 1.4.0 Changed licensing from "MS-PL":[http://opensource.org/licenses/ms-pl.html] to "MIT":[https://github.com/petrknap/utils/blob/master/LICENSE]
  * @change 1.4.0 Moved to `PetrKnap\Utils\Security`
  * @change 1.4.0 Fully translated PhpDocs
@@ -199,20 +200,3 @@ class SignedData
     }
 
 }
-
-class SignedDataException extends \Exception
-{
-    const
-        GenericException = 0,
-        InvalidDataException = 1,
-        UntrustedDataException = 2;
-}
-
-#region Backward compatibility
-namespace PetrKnap\IndependentClass;
-
-class SignedData extends \PetrKnap\Utils\Security\SignedData
-{
-    public static $ALLOW_UNTRUSTED_DATA = true;
-}
-#endregion
