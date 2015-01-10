@@ -1,12 +1,6 @@
-<?php
+<? namespace PetrKnap\Utils\DataStorage;
 
-use PetrKnap\Utils\DataStorage\Database;
-use PetrKnap\Utils\DataStorage\Cache;
-
-require_once(__DIR__ . "/../../DataStorage/Database.class.php");
-require_once(__DIR__ . "/../../DataStorage/Cache.class.php");
-
-class CacheTest extends PHPUnit_Framework_TestCase
+class CacheTest extends \PHPUnit_Framework_TestCase
 {
     private $database;
 
@@ -42,6 +36,7 @@ class CacheTest extends PHPUnit_Framework_TestCase
     public function testDebugModeWorks() {
         $cache = new Cache($this->database);
 
+        $cache->DebugMode = true;
         $cache->add(self::CACHE_KEY, "debug");
 
         $this->assertFalse($cache->get(self::CACHE_KEY));

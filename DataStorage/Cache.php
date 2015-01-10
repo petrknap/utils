@@ -9,16 +9,17 @@
  * @since    2014-07-08
  * @category DataStorage
  * @package  PetrKnap\Utils\DataStorage
- * @version  0.1
+ * @version  0.2
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
- * @homepage http://dev.petrknap.cz/Database.class.php.html
- * @example  Cache.example.php Basic usage example
+ * @homepage http://dev.petrknap.cz/DataStorage/Cache.php.html
+ * @example  CacheTest.php Basic usage example
  * @property string Prefix The cache prefix
  * @property bool DebugMode Debug mode flag
+ *
+ * @change 0.2 Added support for table prefix
  */
 class Cache
 {
-
     /**
      * @var bool Can use APC?
      */
@@ -28,6 +29,11 @@ class Cache
      * @var null|Database Alternative cache storage
      */
     private $dbCache = null;
+
+    /**
+     * @var string Prefix for cache table
+     */
+    private $dbCacheTablePrefix = "";
 
     /**
      * @var string Prefix for this cache
@@ -44,35 +50,42 @@ class Cache
      */
     const
         CREATE_TABLE = "
-        CREATE TABLE IF NOT EXISTS Cache (
+        CREATE TABLE IF NOT EXISTS %s (
             cache_key VARCHAR(200) UNIQUE NOT NULL,
             cache_var TEXT,
             cache_expire_at INTEGER
         );",
         INSERT = "
-        INSERT INTO Cache (cache_key, cache_var, cache_expire_at)
+        INSERT INTO %s (cache_key, cache_var, cache_expire_at)
             VALUES (:cache_key, :cache_var, :cache_expire_at)",
-        SELECT = "SELECT cache_var FROM Cache WHERE cache_key = ?",
-        DELETE = "DELETE FROM Cache WHERE cache_key = ?",
-        EXPIRE = "DELETE FROM Cache WHERE cache_expire_at < ? AND cache_expire_at IS NOT NULL",
-        CLEAN = "DELETE FROM Cache AND cache_key LIKE ?";
+        SELECT = "SELECT cache_var FROM %s WHERE cache_key = ?",
+        DELETE = "DELETE FROM %s WHERE cache_key = ?",
+        EXPIRE = "DELETE FROM %s WHERE cache_expire_at < ? AND cache_expire_at IS NOT NULL",
+        CLEAN = "DELETE FROM %s AND cache_key LIKE ?";
 
     /**
      * Creates new instance
      *
      * @param Database $DBCache Alternative cache storage
+     * @param string $DBCacheTablePrefix Prefix for cache table
      * @throws \Exception If couldn't connect to APC and $DBCache is null.
      */
-    public function __construct($DBCache = null)
+    public function __construct($DBCache = null, $DBCacheTablePrefix = null)
     {
         $this->useAPC = (extension_loaded('apc') && ini_get('apc.enabled'));
 
         if ($DBCache !== null && !$this->useAPC) {
             $this->dbCache = $DBCache;
-            if(!$this->dbCache->IsConnected) {
+            if (!$this->dbCache->IsConnected) {
                 $this->dbCache->Connect();
             }
-            $this->dbCache->Query(self::CREATE_TABLE);
+            $this->dbCache->CreateQuery(
+                sprintf(
+                    self::CREATE_TABLE,
+                    "{$this->dbCacheTablePrefix}cache"
+                ),
+                Database::TYPE_SQLite
+            );
         } else if (!$this->useAPC) {
             throw new \Exception("Couldn't use APC.");
         }
@@ -108,10 +121,19 @@ class Cache
             $return = \apc_add($key, $var, $ttl);
         } else {
             $this->dbCache->IWillBeCareful();
-            $this->dbCache->Query(self::EXPIRE, time());
+            $this->dbCache->Query(
+                sprintf(
+                    self::EXPIRE,
+                    "{$this->dbCacheTablePrefix}cache"
+                ),
+                time()
+            );
             try {
                 $this->dbCache->Query(
-                    self::INSERT,
+                    sprintf(
+                        self::INSERT,
+                        "{$this->dbCacheTablePrefix}cache"
+                    ),
                     array(
                         "cache_key" => $key,
                         "cache_var" => \serialize($var),
@@ -134,7 +156,7 @@ class Cache
      */
     public function get($key)
     {
-        if($this->debugMode) {
+        if ($this->debugMode) {
             return false;
         }
         $key = "{$this->prefix}{$key}";
@@ -143,9 +165,21 @@ class Cache
             $result = \apc_fetch($key);
         } else {
             $this->dbCache->IWillBeCareful();
-            $this->dbCache->Query(self::EXPIRE, time());
+            $this->dbCache->Query(
+                sprintf(
+                    self::EXPIRE,
+                    "{$this->dbCacheTablePrefix}cache"
+                ),
+                time()
+            );
             try {
-                $results = $this->dbCache->Query(self::SELECT, $key);
+                $results = $this->dbCache->Query(
+                    sprintf(
+                        self::SELECT,
+                        "{$this->dbCacheTablePrefix}cache"
+                    ),
+                    $key
+                );
                 $result = $this->dbCache->FetchArray($results, Database::FETCH_ASSOC);
                 if ($result) $result = \unserialize($result["cache_var"]);
             } catch (\PDOException $ignored) {
@@ -168,10 +202,22 @@ class Cache
             $return = \apc_delete($key);
         } else {
             $this->dbCache->IWillBeCareful();
-            $this->dbCache->Query(self::EXPIRE, time());
+            $this->dbCache->Query(
+                sprintf(
+                    self::EXPIRE,
+                    "{$this->dbCacheTablePrefix}cache"
+                ),
+                time()
+            );
             try {
                 $this->dbCache->IWillBeCareful();
-                $this->dbCache->Query(self::DELETE, $key);
+                $this->dbCache->Query(
+                    sprintf(
+                        self::DELETE,
+                        "{$this->dbCacheTablePrefix}cache"
+                    ),
+                    $key
+                );
                 $return = true;
             } catch (\PDOException $ignored) {
             }
@@ -194,7 +240,13 @@ class Cache
         } else {
             try {
                 $this->dbCache->IWillBeCareful();
-                $this->dbCache->Query(self::CLEAN, "{$this->prefix}%");
+                $this->dbCache->Query(
+                    sprintf(
+                        self::CLEAN,
+                        "{$this->dbCacheTablePrefix}cache"
+                    ),
+                    "{$this->prefix}%"
+                );
                 $return = true;
             } catch (\PDOException $ignored) {
             }
@@ -202,8 +254,9 @@ class Cache
         return $return;
     }
 
-    public function __get($name) {
-        switch($name) {
+    public function __get($name)
+    {
+        switch ($name) {
             case "DebugMode":
                 return $this->debugMode;
             case "Prefix":
@@ -213,8 +266,9 @@ class Cache
         }
     }
 
-    public function __set($name, $value) {
-        switch($name) {
+    public function __set($name, $value)
+    {
+        switch ($name) {
             case "DebugMode":
                 $this->debugMode = $value;
                 break;
