@@ -9,7 +9,7 @@
  * @package  PetrKnap\Utils\Network
  * @version  0.2
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
- * @homepage http://dev.petrknap.cz/HttpResponse.class.php.html
+ * @homepage http://dev.petrknap.cz/HttpResponse.php.html
  *
  * @change 0.2 Void returning methods now returns $this
  */
