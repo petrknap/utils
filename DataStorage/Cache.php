@@ -66,16 +66,20 @@ class Cache
     /**
      * Creates new instance
      *
-     * @param Database $DBCache Alternative cache storage
-     * @param string $DBCacheTablePrefix Prefix for cache table
+     * @param Database $dbCache Alternative cache storage
+     * @param string $dbCacheTablePrefix Prefix for cache table
      * @throws \Exception If couldn't connect to APC and $DBCache is null.
      */
-    public function __construct($DBCache = null, $DBCacheTablePrefix = null)
+    public function __construct($dbCache = null, $dbCacheTablePrefix = null)
     {
         $this->useAPC = (extension_loaded('apc') && ini_get('apc.enabled'));
 
-        if ($DBCache !== null && !$this->useAPC) {
-            $this->dbCache = $DBCache;
+        if($dbCacheTablePrefix !== null) {
+            $this->dbCacheTablePrefix = $dbCacheTablePrefix;
+        }
+
+        if ($dbCache !== null && !$this->useAPC) {
+            $this->dbCache = $dbCache;
             if (!$this->dbCache->IsConnected) {
                 $this->dbCache->Connect();
             }
