@@ -1,11 +1,6 @@
-<?php
+<?php namespace PetrKnap\Utils\DataStorage;
 
-use PetrKnap\Utils\DataStorage\Database;
-use PetrKnap\Utils\DataStorage\DatabaseException;
-
-require_once(__DIR__ . "/../../DataStorage/Database.class.php");
-
-class DatabaseTest extends PHPUnit_Framework_TestCase
+class DatabaseTest extends \PHPUnit_Framework_TestCase
 {
     #region Empty tests
     public function test_emptyType_connect()
