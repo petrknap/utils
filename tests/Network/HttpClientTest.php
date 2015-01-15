@@ -1,6 +1,9 @@
-<?php namespace PetrKnap\Utils\Network;
+<?php
 
-class HttpClientTest extends \PHPUnit_Framework_TestCase
+use PetrKnap\Utils\Network\HttpClient;
+use PetrKnap\Utils\Network\HttpClientException;
+
+class HttpClientTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var HttpClient

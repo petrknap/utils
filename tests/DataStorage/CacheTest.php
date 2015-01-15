@@ -1,6 +1,9 @@
-<?php namespace PetrKnap\Utils\DataStorage;
+<?php
 
-class CacheTest extends \PHPUnit_Framework_TestCase
+use PetrKnap\Utils\DataStorage\Cache;
+use PetrKnap\Utils\DataStorage\Database;
+
+class CacheTest extends PHPUnit_Framework_TestCase
 {
     private $database;
 

@@ -1,6 +1,6 @@
-<?php namespace PetrKnap\Utils\Network;
+<?php
 
-class HttpResponseTest extends \PHPUnit_Framework_TestCase
+class HttpResponseTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var HttpResponse

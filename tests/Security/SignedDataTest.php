@@ -3,9 +3,6 @@
 use PetrKnap\Utils\Security\SignedData;
 use PetrKnap\Utils\Security\SignedDataException;
 
-require_once(__DIR__ . "/../../Security/Hash.class.php");
-require_once(__DIR__ . "/../../Security/SignedData.class.php");
-
 class SignedDataTest extends PHPUnit_Framework_TestCase
 {
     const data = 0x1, saltPrefix = 0x2, saltSuffix = 0x3;
@@ -108,5 +105,4 @@ class SignedDataTest extends PHPUnit_Framework_TestCase
         }
 
     }
-
 }

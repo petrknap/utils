@@ -1,6 +1,9 @@
-<?php namespace PetrKnap\Utils\DataStorage;
+<?php
 
-class DatabaseTest extends \PHPUnit_Framework_TestCase
+use PetrKnap\Utils\DataStorage\Database;
+use PetrKnap\Utils\DataStorage\DatabaseException;
+
+class DatabaseTest extends PHPUnit_Framework_TestCase
 {
     #region Empty tests
     public function test_emptyType_connect()
