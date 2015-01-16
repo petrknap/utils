@@ -1,5 +1,7 @@
 <?php
 
+use PetrKnap\Utils\Network\HttpResponse;
+
 class HttpResponseTest extends PHPUnit_Framework_TestCase
 {
     /**
