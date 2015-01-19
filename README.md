@@ -4,7 +4,7 @@ Useful PHP utilities by [Petr Knap].
 
 ## How to install
 
-Add this code into your project `composer.json` file.
+Add this code into your project `composer.json` file. If you wish to have full control over updates then [fork this repository] and change repository url to your forked repository.
 
 ```json
 {
@@ -28,6 +28,7 @@ If you are looking for examples visit [tests folder] or [URL shortening service 
 
 
 
+[fork this repository]:https://github.com/petrknap/utils/fork
 [Petr Knap]:http://petrknap.cz/
 [tests folder]:https://github.com/petrknap/utils/tree/master/tests
 [URL shortening service repository]:https://github.com/petrknap/link.petrknap.cz
