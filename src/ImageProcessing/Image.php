@@ -1,4 +1,7 @@
-<?php namespace PetrKnap\Utils\ImageProcessing;
+<?php
+
+namespace PetrKnap\Utils\ImageProcessing;
+
 /**
  * Class designed to simplify the image processing in PHP
  *
@@ -10,20 +13,25 @@
  * @since    2008-09-04
  * @category ImageProcessing
  * @package  PetrKnap\Utils\ImageProcessing
- * @version  8.11
+ * @version  9.0
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
- * @homepage http://dev.petrknap.cz/Image.class.php.html
- * @example  Image.example.php Example usage
+ * @homepage http://dev.petrknap.cz/ImageProcessing/Image.php.html
+ * @example  ImageTest.php Test cases
  *
  * @property string PathToFile Path to image file
  * @property int Width Width of image in pixels
  * @property int Height Height of image in pixels
  * @property int Type Type of image (constants `GIF`, `JPG`, `PNG` and `BMP`)
  * @property resource Image RAW image resource
+ * @property resource Resource RAW image resource
  * @property int BackgroundColor Background color in hexadecimal `0xAARRGGBB` (ARGB) format
  * @property int TransparentColor Transparent color in hexadecimal `0xAARRGGBB` (ARGB) format
  * @property int JpgQuality JPG quality in percents (from 1 to 100)
  *
+ * @change 9.0  Removed backward compatibility with versions 8.*
+ * @change 9.0  Now throws `ImageException` instead of `\Exception`
+ * @change 9.0  Added method `__toString`:[#method___toString]
+ * @change 9.0  Added property `Resource`:[#property_Resource]
  * @change 8.11 Changed licensing from "MS-PL":[http://opensource.org/licenses/ms-pl.html] to "MIT":[https://github.com/petrknap/utils/blob/master/LICENSE]
  * @change 8.11 Moved to `PetrKnap\Utils\ImageProcessing`
  * @change 8.11 Fully translated PhpDocs
@@ -88,6 +96,15 @@ class Image
     }
 
     /**
+     * Converts object into string
+     *
+     * @return string
+     */
+    public function __toString() {
+        return sprintf("%s(%s, width %u px, height %u px)", get_class($this), $this->image, $this->width, $this->height);
+    }
+
+    /**
      * Creates new Image object from image file
      *
      * @param string $pathToFile Path to image file
@@ -103,11 +120,16 @@ class Image
      * Creates new Image object from image resource
      *
      * @param resource $resource Image resource
+     * @throws ImageException
      * @return self
      */
     public static function fromResource($resource) {
         $newImage = new self();
-        $newImage->setImage($resource);
+        try {
+            $newImage->setImage($resource);
+        } catch(\Exception $e) {
+            throw new ImageException($e->getMessage(), ImageException::UnsupportedFormatException, $e);
+        }
         return $newImage;
     }
 
@@ -137,12 +159,14 @@ class Image
      * Loads image file to RAM
      *
      * @param string $pathToFile Path to loaded file
-     * @throws \Exception
+     * @throws ImageException
      */
     private function open($pathToFile)
     {
         $this->pathToFile = $pathToFile;
-        if (!file_exists($this->pathToFile)) throw new \Exception("File " . ($this->pathToFile) . " not found.");
+        if (!file_exists($this->pathToFile)) {
+            throw new ImageException("File " . ($this->pathToFile) . " not found.", ImageException::AccessException);
+        }
         $tmpImageSize = getimagesize($this->pathToFile);
         $this->width = (int)$tmpImageSize[0];
         $this->height = (int)$tmpImageSize[1];
@@ -161,7 +185,7 @@ class Image
                 $this->image = imagecreatefromwbmp($this->pathToFile);
                 break;
             default:
-                throw new \Exception("Unknown type of file " . ($this->pathToFile) . ".");
+                throw new ImageException("Unknown type of file " . ($this->pathToFile) . ".", ImageException::UnsupportedFormatException);
                 break;
         }
     }
@@ -253,10 +277,13 @@ class Image
      *
      * @param self $secondImage Foreground Image object
      * @param int $position Predefined position of foreground Image object (default: self::RightBottom)
-     * @throws \Exception If couldn't find position.
+     * @throws ImageException If couldn't find position.
      */
     public function join(self $secondImage, $position = self::RightBottom)
     {
+        if($secondImage->Width > $this->Width || $secondImage->Height > $this->Height) {
+            throw new ImageException("Cannot insert bigger {$secondImage} into smaller {$this}.", ImageException::OutOfRangeException);
+        }
         switch ($position) {
             case self::LeftTop:
                 $x = 0; // left
@@ -295,7 +322,7 @@ class Image
                 $y = $this->height - $secondImage->Height; // bottom
                 break;
             default:
-                throw new \Exception("Position " . $position . " not found.");
+                throw new ImageException("Position " . $position . " not found.", ImageException::OutOfRangeException);
                 break;
         }
         imagecopy($this->image, $secondImage->Image, $x, $y, 0, 0, $secondImage->Width, $secondImage->Height);
@@ -307,7 +334,7 @@ class Image
      * Content-Type header is generated automatically.
      *
      * @see $type
-     * @throws \Exception If couldn't find image type.
+     * @throws ImageException If couldn't find image type.
      */
     public function show()
     {
@@ -329,7 +356,7 @@ class Image
                 imagewbmp($this->image);
                 break;
             default:
-                throw new \Exception("Unknown type of file " . ($this->pathToFile) . ".");
+                throw new ImageException("Unknown type of file " . ($this->pathToFile) . ".", ImageException::UnsupportedFormatException);
                 break;
         }
     }
@@ -340,7 +367,7 @@ class Image
      * @param string $pathToFile Path to file
      * @param int $type Output type of image
      * @param int $jpgQuality Output JPG quality in percents (from 1 to 100)
-     * @throws \Exception If couldn't find image type.
+     * @throws ImageException If couldn't find image type.
      */
     public function save($pathToFile = null, $type = null, $jpgQuality = null)
     {
@@ -361,7 +388,7 @@ class Image
                 imagewbmp($this->image, $pathToFile);
                 break;
             default:
-                throw new \Exception("Unknown type of file " . ($this->pathToFile) . ".");
+                throw new ImageException("Unknown type of file " . ($this->pathToFile) . ".", ImageException::UnsupportedFormatException);
                 break;
         }
         $this->pathToFile = $pathToFile;
@@ -382,7 +409,7 @@ class Image
      *
      * @param string $name Property name
      * @return mixed Property value
-     * @throws \Exception If couldn't find property.
+     * @throws ImageException If couldn't find property.
      */
     public function __get($name)
     {
@@ -396,6 +423,7 @@ class Image
             case 'Type':
                 return $this->type;
             case 'Image':
+            case 'Resource':
                 return $this->image;
             case 'BackgroundColor':
                 return $this->backgroundColor;
@@ -404,7 +432,7 @@ class Image
             case 'JpgQuality':
                 return $this->jpgQuality;
             default:
-                throw new \Exception("Variable $" . $name . " not found.");
+                throw new ImageException("Variable $" . $name . " not found.", ImageException::GenericException);
         }
     }
 
@@ -413,7 +441,7 @@ class Image
      *
      * @param string $name Property name
      * @param mixed $value Property value
-     * @throws \Exception If couldn't access property.
+     * @throws ImageException If couldn't access property.
      */
     public function __set($name, $value)
     {
@@ -434,10 +462,10 @@ class Image
             case 'Width':
             case 'Height':
             case 'Image':
-                throw new \Exception("Variable $" . $name . " is readonly.");
+                throw new ImageException("Variable $" . $name . " is readonly.", ImageException::AccessException);
                 break;
             default:
-                throw new \Exception("Variable $" . $name . " not found.");
+                throw new ImageException("Variable $" . $name . " not found.", ImageException::GenericException);
                 break;
         }
     }
@@ -481,20 +509,16 @@ class Image
      * Sets JPG quality
      *
      * @param int $jpgQuality
-     * @throws \OutOfRangeException
+     * @throws ImageException
      */
     private function setJpgQuality($jpgQuality)
     {
-        if($jpgQuality < 1 || $jpgQuality > 100) throw new \OutOfRangeException("Value must be between 1 and 100.");
+        if($jpgQuality < 1 || $jpgQuality > 100) {
+            throw new ImageException("Value must be between 1 and 100.", ImageException::OutOfRangeException);
+        }
         $this->jpgQuality = (int)$jpgQuality;
     }
 
     #endregion
 
 }
-
-#region Backward compatibility
-namespace PetrKnap\IndependentClass;
-
-class Image extends \PetrKnap\Utils\ImageProcessing\Image {}
-#endregion
