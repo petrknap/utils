@@ -32,7 +32,27 @@ abstract class File
     public function __construct($pathToFile)
     {
         $this->pathToFile = $pathToFile;
-        $this->realPathToFile = $this->getRealPathToFile($pathToFile);
+        $this->realPathToFile = $this->generateRealPathToFile($pathToFile);
+    }
+
+    /**
+     * Returns real path to file
+     *
+     * @return string
+     */
+    public function getRealPathToFile()
+    {
+        return $this->realPathToFile;
+    }
+
+    /**
+     * Returns path to file
+     *
+     * @return string
+     */
+    public function getPathToFile()
+    {
+        return $this->pathToFile;
     }
 
     abstract protected function getStorageDirectory();
@@ -43,7 +63,7 @@ abstract class File
      * @param string $pathToFile user-friendly (readable) path to file
      * @return string
      */
-    private function getRealPathToFile($pathToFile)
+    private function generateRealPathToFile($pathToFile)
     {
         $sha1 = sha1($pathToFile);
         $md5 = md5($pathToFile);
