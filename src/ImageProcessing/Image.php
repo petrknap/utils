@@ -13,7 +13,7 @@ namespace PetrKnap\Utils\ImageProcessing;
  * @since    2008-09-04
  * @category ImageProcessing
  * @package  PetrKnap\Utils\ImageProcessing
- * @version  9.0
+ * @version  9.1
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  * @homepage http://dev.petrknap.cz/ImageProcessing/Image.php.html
  * @example  ImageTest.php Test cases
@@ -28,6 +28,7 @@ namespace PetrKnap\Utils\ImageProcessing;
  * @property int TransparentColor Transparent color in hexadecimal `0xAARRGGBB` (ARGB) format
  * @property int JpgQuality JPG quality in percents (from 1 to 100)
  *
+ * @change 9.1  Added method `crop`:[#method_crop]
  * @change 9.0  Removed backward compatibility with versions 8.*
  * @change 9.0  Now throws `ImageException` instead of `\Exception`
  * @change 9.0  Added method `__toString`:[#method___toString]
@@ -260,7 +261,29 @@ class Image
         $this->rotate(270);
     }
 
-    // TODO public function crop($fromX, $fromY, $toX, $toY)
+    /**
+     * Crops image via rectangle
+     *
+     * @param array $rectangle
+     * @throws ImageException If couldn't crop image.
+     */
+    public function crop(array $rectangle) {
+        $croppedImage = @imagecrop($this->image, $rectangle);
+        if($croppedImage === false) {
+            $rectangleAsString = "{";
+            foreach($rectangle as $key => $value) {
+                $rectangleAsString .= "\"{$key}\" => {$value}, ";
+            }
+            $rectangleAsString = preg_replace("/, $/", "}", $rectangleAsString);
+            throw new ImageException(
+                "Can not crop image {$this} via rectangle {$rectangleAsString}.",
+                ImageException::GenericException
+            );
+        }
+        $this->image = $croppedImage;
+        $this->width = $rectangle["width"];
+        $this->height = $rectangle["height"];
+    }
 
     /**
      * Joins images together
