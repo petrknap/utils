@@ -126,7 +126,7 @@ abstract class File
 
         $path = dirname($this->realPathToFile);
         if(!file_exists($path)) {
-            @mkdir($path, 0644, true);
+            @mkdir($path, 0744, true);
         }
 
         $return = touch($this->realPathToFile);
