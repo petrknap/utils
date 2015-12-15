@@ -6,6 +6,13 @@ class SimpleProfilerTest extends PHPUnit_Framework_TestCase
 {
     const ACCEPTABLE_DELAY = 0.002; // 2 ms
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        SimpleProfiler::enable();
+    }
+
     private function checkResult(array $result, $startLabel, $finishLabel)
     {
         $this->assertArrayHasKey(SimpleProfiler::START_LABEL, $result);
@@ -26,6 +33,22 @@ class SimpleProfilerTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException(get_class(new \OutOfRangeException()));
 
         SimpleProfiler::finish();
+    }
+
+    public function testEnable()
+    {
+        SimpleProfiler::enable();
+
+        $this->assertTrue(SimpleProfiler::start());
+        $this->assertTrue(is_array(SimpleProfiler::finish()));
+    }
+
+    public function testDisable()
+    {
+        SimpleProfiler::disable();
+
+        $this->assertFalse(SimpleProfiler::start());
+        $this->assertFalse(SimpleProfiler::finish());
     }
 
     public function testOneLevelProfiling()

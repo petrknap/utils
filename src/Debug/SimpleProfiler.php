@@ -9,7 +9,7 @@ namespace PetrKnap\Utils\Debug;
  * @since    2015-12-13
  * @category Debug
  * @package  PetrKnap\Utils\Debug
- * @version  0.1
+ * @version  0.2
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  */
 class SimpleProfiler
@@ -23,50 +23,79 @@ class SimpleProfiler
     const DURATION = "duration"; // float duration in seconds
     #endregion
 
+    private static $enabled = false;
+
     private static $offset = 0;
 
     private static $stack = [];
 
     /**
+     * Enable profiler
+     */
+    public static function enable()
+    {
+        self::$enabled = true;
+    }
+
+    /**
+     * Disable profiler
+     */
+    public static function disable()
+    {
+        self::$enabled = false;
+    }
+
+    /**
      * Start profiling
      *
      * @param string $label
+     * @return bool true on success or false on failure
      */
     public static function start($label = null)
     {
-        array_push(self::$stack, [
-            self::START_LABEL => $label,
-            self::START_TIME => microtime(true)
-        ]);
+        if(self::$enabled) {
+            array_push(self::$stack, [
+                self::START_LABEL => $label,
+                self::START_TIME => microtime(true)
+            ]);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Finish profiling and get result
      *
      * @param string $label
-     * @return array result
+     * @return array|bool result as array on success or false on failure
      */
     public static function finish($label = null)
     {
-        $now = microtime(true);
+        if(self::$enabled) {
+            $now = microtime(true);
 
-        if (empty(self::$stack)) {
-            throw new \OutOfRangeException("Call " . __CLASS__ . "::start() first.");
+            if (empty(self::$stack)) {
+                throw new \OutOfRangeException("Call " . __CLASS__ . "::start() first.");
+            }
+
+            $result = array_pop(self::$stack);
+
+            $result[self::FINISH_LABEL] = $label;
+            $result[self::FINISH_TIME] = $now;
+            $result[self::ABSOLUTE_DURATION] = $result[self::FINISH_TIME] - $result[self::START_TIME];
+            $result[self::DURATION] = $result[self::ABSOLUTE_DURATION] - self::$offset;
+
+            self::$offset = $result[self::ABSOLUTE_DURATION];
+
+            if (empty(self::$stack)) {
+                self::$offset = 0;
+            }
+
+            return $result;
         }
 
-        $result = array_pop(self::$stack);
-
-        $result[self::FINISH_LABEL] = $label;
-        $result[self::FINISH_TIME] = $now;
-        $result[self::ABSOLUTE_DURATION] = $result[self::FINISH_TIME] - $result[self::START_TIME];
-        $result[self::DURATION] = $result[self::ABSOLUTE_DURATION] - self::$offset;
-
-        self::$offset = $result[self::ABSOLUTE_DURATION];
-
-        if (empty(self::$stack)) {
-            self::$offset = 0;
-        }
-
-        return $result;
+        return false;
     }
 }
