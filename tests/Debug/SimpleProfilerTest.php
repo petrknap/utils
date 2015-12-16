@@ -19,6 +19,7 @@ class SimpleProfilerTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey(SimpleProfiler::START_TIME, $result);
         $this->assertArrayHasKey(SimpleProfiler::FINISH_LABEL, $result);
         $this->assertArrayHasKey(SimpleProfiler::FINISH_TIME, $result);
+        $this->assertArrayHasKey(SimpleProfiler::TIME_OFFSET, $result);
         $this->assertArrayHasKey(SimpleProfiler::ABSOLUTE_DURATION, $result);
         $this->assertArrayHasKey(SimpleProfiler::DURATION, $result);
 
@@ -87,27 +88,38 @@ class SimpleProfilerTest extends PHPUnit_Framework_TestCase
         #endregion
     }
 
-    public function testProfiling()
+    public function testTimeProfiling()
     {
-        #region First level
+        #region First level (A)
         SimpleProfiler::start();
 
         sleep(1);
 
-        #region Second level
+        #region Second level - first (B)
+        SimpleProfiler::start();
+
+        sleep(3);
+
+        $B = SimpleProfiler::finish();
+        #endregion
+
+        #region Second level - second (C)
         SimpleProfiler::start();
 
         sleep(2);
 
-        $SLR = SimpleProfiler::finish();
+        $C = SimpleProfiler::finish();
         #endregion
 
-        $FLR = SimpleProfiler::finish();
+        $A = SimpleProfiler::finish();
         #endregion
 
-        $this->assertEquals(3, $FLR[SimpleProfiler::ABSOLUTE_DURATION], "", self::ACCEPTABLE_DELAY);
-        $this->assertEquals(2, $SLR[SimpleProfiler::ABSOLUTE_DURATION], "",  self::ACCEPTABLE_DELAY);
-        $this->assertEquals(1, $FLR[SimpleProfiler::DURATION], "", self::ACCEPTABLE_DELAY);
-        $this->assertEquals(2, $SLR[SimpleProfiler::DURATION], "", self::ACCEPTABLE_DELAY);
+        $this->assertEquals(6, $A[SimpleProfiler::ABSOLUTE_DURATION], "", self::ACCEPTABLE_DELAY);
+        $this->assertEquals(3, $B[SimpleProfiler::ABSOLUTE_DURATION], "",  self::ACCEPTABLE_DELAY);
+        $this->assertEquals(2, $C[SimpleProfiler::ABSOLUTE_DURATION], "",  self::ACCEPTABLE_DELAY);
+
+        $this->assertEquals(1, $A[SimpleProfiler::DURATION], "", self::ACCEPTABLE_DELAY);
+        $this->assertEquals(3, $B[SimpleProfiler::DURATION], "", self::ACCEPTABLE_DELAY);
+        $this->assertEquals(2, $C[SimpleProfiler::DURATION], "", self::ACCEPTABLE_DELAY);
     }
 }

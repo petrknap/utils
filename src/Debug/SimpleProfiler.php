@@ -9,7 +9,7 @@ namespace PetrKnap\Utils\Debug;
  * @since    2015-12-13
  * @category Debug
  * @package  PetrKnap\Utils\Debug
- * @version  0.2
+ * @version  0.3
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  */
 class SimpleProfiler
@@ -19,13 +19,12 @@ class SimpleProfiler
     const START_TIME = "start_time"; // float start time in seconds
     const FINISH_LABEL = "finish_label"; // string
     const FINISH_TIME = "finish_time"; // float finish time in seconds
+    const TIME_OFFSET = "time_offset"; // float time offset in seconds
     const ABSOLUTE_DURATION = "absolute_duration"; // float absolute duration in seconds
     const DURATION = "duration"; // float duration in seconds
     #endregion
 
     private static $enabled = false;
-
-    private static $offset = 0;
 
     private static $stack = [];
 
@@ -56,6 +55,7 @@ class SimpleProfiler
         if(self::$enabled) {
             array_push(self::$stack, [
                 self::START_LABEL => $label,
+                self::TIME_OFFSET => 0,
                 self::START_TIME => microtime(true)
             ]);
 
@@ -85,12 +85,16 @@ class SimpleProfiler
             $result[self::FINISH_LABEL] = $label;
             $result[self::FINISH_TIME] = $now;
             $result[self::ABSOLUTE_DURATION] = $result[self::FINISH_TIME] - $result[self::START_TIME];
-            $result[self::DURATION] = $result[self::ABSOLUTE_DURATION] - self::$offset;
+            $result[self::DURATION] = $result[self::ABSOLUTE_DURATION] - $result[self::TIME_OFFSET];
 
-            self::$offset = $result[self::ABSOLUTE_DURATION];
+            // Fix for case when absolute duration is close to offset
+            if ($result[self::DURATION] < 0) {
+                $result[self::DURATION] = 0;
+            }
 
-            if (empty(self::$stack)) {
-                self::$offset = 0;
+            if (!empty(self::$stack)) {
+                $offset = &self::$stack[count(self::$stack) - 1][self::TIME_OFFSET];
+                $offset = $offset + $result[self::ABSOLUTE_DURATION];
             }
 
             return $result;
