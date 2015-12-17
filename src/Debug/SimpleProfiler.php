@@ -9,7 +9,7 @@ namespace PetrKnap\Utils\Debug;
  * @since    2015-12-13
  * @category Debug
  * @package  PetrKnap\Utils\Debug
- * @version  0.3
+ * @version  0.4
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  */
 class SimpleProfiler
@@ -17,8 +17,10 @@ class SimpleProfiler
     #region Result keys
     const START_LABEL = "start_label"; // string
     const START_TIME = "start_time"; // float start time in seconds
+    const START_MEMORY_USAGE = "start_memory_usage"; // int the memory amount in bytes
     const FINISH_LABEL = "finish_label"; // string
     const FINISH_TIME = "finish_time"; // float finish time in seconds
+    const FINISH_MEMORY_USAGE = "finish_memory_usage"; // int the memory amount in bytes
     const TIME_OFFSET = "time_offset"; // float time offset in seconds
     const ABSOLUTE_DURATION = "absolute_duration"; // float absolute duration in seconds
     const DURATION = "duration"; // float duration in seconds
@@ -53,10 +55,13 @@ class SimpleProfiler
     public static function start($label = null)
     {
         if(self::$enabled) {
+            $now = microtime(true);
+
             array_push(self::$stack, [
                 self::START_LABEL => $label,
                 self::TIME_OFFSET => 0,
-                self::START_TIME => microtime(true)
+                self::START_TIME => $now,
+                self::START_MEMORY_USAGE => memory_get_usage(true)
             ]);
 
             return true;
@@ -84,6 +89,7 @@ class SimpleProfiler
 
             $result[self::FINISH_LABEL] = $label;
             $result[self::FINISH_TIME] = $now;
+            $result[self::FINISH_MEMORY_USAGE] = memory_get_usage(true);
             $result[self::ABSOLUTE_DURATION] = $result[self::FINISH_TIME] - $result[self::START_TIME];
             $result[self::DURATION] = $result[self::ABSOLUTE_DURATION] - $result[self::TIME_OFFSET];
 

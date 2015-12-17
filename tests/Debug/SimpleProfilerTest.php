@@ -17,8 +17,10 @@ class SimpleProfilerTest extends PHPUnit_Framework_TestCase
     {
         $this->assertArrayHasKey(SimpleProfiler::START_LABEL, $result);
         $this->assertArrayHasKey(SimpleProfiler::START_TIME, $result);
+        $this->assertArrayHasKey(SimpleProfiler::START_MEMORY_USAGE, $result);
         $this->assertArrayHasKey(SimpleProfiler::FINISH_LABEL, $result);
         $this->assertArrayHasKey(SimpleProfiler::FINISH_TIME, $result);
+        $this->assertArrayHasKey(SimpleProfiler::FINISH_MEMORY_USAGE, $result);
         $this->assertArrayHasKey(SimpleProfiler::TIME_OFFSET, $result);
         $this->assertArrayHasKey(SimpleProfiler::ABSOLUTE_DURATION, $result);
         $this->assertArrayHasKey(SimpleProfiler::DURATION, $result);
@@ -121,5 +123,27 @@ class SimpleProfilerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $A[SimpleProfiler::DURATION], "", self::ACCEPTABLE_DELAY);
         $this->assertEquals(3, $B[SimpleProfiler::DURATION], "", self::ACCEPTABLE_DELAY);
         $this->assertEquals(2, $C[SimpleProfiler::DURATION], "", self::ACCEPTABLE_DELAY);
+    }
+
+    public function testMemoryProfiling()
+    {
+        SimpleProfiler::start();
+
+        $largeObject = null;
+        for($i = 0; $i < 1000; $i++) {
+            $largeObject = new \Exception("Large object", 0, $largeObject);
+        }
+
+        $result = SimpleProfiler::finish();
+
+        $this->assertGreaterThan($result[SimpleProfiler::START_MEMORY_USAGE], $result[SimpleProfiler::FINISH_MEMORY_USAGE]);
+
+        SimpleProfiler::start();
+
+        unset($largeObject);
+
+        $result = SimpleProfiler::finish();
+
+        $this->assertLessThan($result[SimpleProfiler::START_MEMORY_USAGE], $result[SimpleProfiler::FINISH_MEMORY_USAGE]);
     }
 }
