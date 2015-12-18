@@ -131,12 +131,17 @@ class SimpleProfilerTest extends PHPUnit_Framework_TestCase
 
         $largeObject = null;
         for($i = 0; $i < 1000; $i++) {
+            SimpleProfiler::start();
             $largeObject = new \Exception("Large object", 0, $largeObject);
+            SimpleProfiler::finish();
         }
 
         $result = SimpleProfiler::finish();
 
         $this->assertGreaterThan($result[SimpleProfiler::START_MEMORY_USAGE], $result[SimpleProfiler::FINISH_MEMORY_USAGE]);
+        $this->assertGreaterThan($result[SimpleProfiler::MEMORY_USAGE_CHANGE], $result[SimpleProfiler::ABSOLUTE_MEMORY_USAGE_CHANGE]);
+        $this->assertGreaterThan(0, $result[SimpleProfiler::ABSOLUTE_MEMORY_USAGE_CHANGE]);
+        $this->assertGreaterThan(0, $result[SimpleProfiler::MEMORY_USAGE_CHANGE]);
 
         SimpleProfiler::start();
 
@@ -145,5 +150,8 @@ class SimpleProfilerTest extends PHPUnit_Framework_TestCase
         $result = SimpleProfiler::finish();
 
         $this->assertLessThan($result[SimpleProfiler::START_MEMORY_USAGE], $result[SimpleProfiler::FINISH_MEMORY_USAGE]);
+        $this->assertEquals($result[SimpleProfiler::ABSOLUTE_MEMORY_USAGE_CHANGE], $result[SimpleProfiler::MEMORY_USAGE_CHANGE]);
+        $this->assertLessThan(0, $result[SimpleProfiler::ABSOLUTE_MEMORY_USAGE_CHANGE]);
+        $this->assertLessThan(0, $result[SimpleProfiler::MEMORY_USAGE_CHANGE]);
     }
 }
