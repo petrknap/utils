@@ -5,22 +5,22 @@ use PetrKnap\Utils\ImageProcessing\ImageException;
 
 class ImageTest extends PHPUnit_Framework_TestCase
 {
-    private $inputImage = [
+    private $inputImage = array(
         "file" => null,
         "image" => null,
         "resource" => null,
         "width" => 180,
         "height" => 40
-    ];
+    );
 
-    private $supportedFormats = [
+    private $supportedFormats = array(
         Image::BMP,
         Image::GIF,
         Image::JPG,
         Image::PNG
-    ];
+    );
 
-    private $supportedPositions = [
+    private $supportedPositions = array(
         Image::LeftTop,
         Image::LeftBottom,
         Image::LeftCenter,
@@ -30,7 +30,7 @@ class ImageTest extends PHPUnit_Framework_TestCase
         Image::RightTop,
         Image::RightCenter,
         Image::RightBottom
-    ];
+    );
 
     public function setUp() {
         $this->inputImage["file"] = __DIR__ . "/ImageTest.png";
@@ -244,6 +244,29 @@ class ImageTest extends PHPUnit_Framework_TestCase
         ob_end_clean();
 
         $this->assertEquals($pngA, $pngB);
+    }
+    #endregion
+
+    #region Cropping
+    /**
+     * @covers Image::crop
+     */
+    public function testCanBeCropped() {
+        $image = Image::fromImage($this->inputImage["image"]);
+
+        $rectangle = array(
+            "x" => 1,
+            "y" => 2,
+            "width" => 3,
+            "height" => 4
+        );
+
+        $image->crop($rectangle);
+
+        $image = Image::fromResource($image->Resource);
+
+        $this->assertEquals($rectangle["width"], $image->Width);
+        $this->assertEquals($rectangle["height"], $image->Height);
     }
     #endregion
 

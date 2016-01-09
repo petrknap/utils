@@ -13,7 +13,7 @@ namespace PetrKnap\Utils\ImageProcessing;
  * @since    2008-09-04
  * @category ImageProcessing
  * @package  PetrKnap\Utils\ImageProcessing
- * @version  9.0
+ * @version  9.1
  * @license  https://github.com/petrknap/utils/blob/master/LICENSE MIT
  * @homepage http://dev.petrknap.cz/ImageProcessing/Image.php.html
  * @example  ImageTest.php Test cases
@@ -22,12 +22,14 @@ namespace PetrKnap\Utils\ImageProcessing;
  * @property int Width Width of image in pixels
  * @property int Height Height of image in pixels
  * @property int Type Type of image (constants `GIF`, `JPG`, `PNG` and `BMP`)
- * @property resource Image RAW image resource
  * @property resource Resource RAW image resource
  * @property int BackgroundColor Background color in hexadecimal `0xAARRGGBB` (ARGB) format
  * @property int TransparentColor Transparent color in hexadecimal `0xAARRGGBB` (ARGB) format
  * @property int JpgQuality JPG quality in percents (from 1 to 100)
  *
+ * @change 9.1  Removed property `Image`:[#property_Image]
+ * @change 9.1  Renamed method `setImage` to `setResource`:[#method_setResource]
+ * @change 9.1  Added method `crop`:[#method_crop]
  * @change 9.0  Removed backward compatibility with versions 8.*
  * @change 9.0  Now throws `ImageException` instead of `\Exception`
  * @change 9.0  Added method `__toString`:[#method___toString]
@@ -48,7 +50,7 @@ class Image
     private $width;
     private $height;
     private $type;
-    private $image;
+    private $resource;
     private $backgroundColor = 0x00FFFFFF;
     private $transparentColor = null;
     private $jpgQuality = 85;
@@ -77,6 +79,7 @@ class Image
         BMP = IMAGETYPE_WBMP;
 
     #endregion
+
     #region Base methods
     /**
      * Creates empty instance
@@ -101,7 +104,7 @@ class Image
      * @return string
      */
     public function __toString() {
-        return sprintf("%s(%s, width %u px, height %u px)", get_class($this), $this->image, $this->width, $this->height);
+        return sprintf("%s(%s, width %u px, height %u px)", get_class($this), $this->resource, $this->width, $this->height);
     }
 
     /**
@@ -126,7 +129,7 @@ class Image
     public static function fromResource($resource) {
         $newImage = new self();
         try {
-            $newImage->setImage($resource);
+            $newImage->setResource($resource);
         } catch(\Exception $e) {
             throw new ImageException($e->getMessage(), ImageException::UnsupportedFormatException, $e);
         }
@@ -149,8 +152,8 @@ class Image
      *
      * @param resource $resource image resource
      */
-    public function setImage($resource) {
-        $this->image = $resource;
+    public function setResource($resource) {
+        $this->resource = $resource;
         $this->width = imagesx($resource);
         $this->height = imagesy($resource);
     }
@@ -173,16 +176,16 @@ class Image
         $this->type = (int)$tmpImageSize[2];
         switch ($this->type) {
             case self::GIF:
-                $this->image = imagecreatefromgif($this->pathToFile);
+                $this->resource = imagecreatefromgif($this->pathToFile);
                 break;
             case self::JPG:
-                $this->image = imagecreatefromjpeg($this->pathToFile);
+                $this->resource = imagecreatefromjpeg($this->pathToFile);
                 break;
             case self::PNG:
-                $this->image = imagecreatefrompng($this->pathToFile);
+                $this->resource = imagecreatefrompng($this->pathToFile);
                 break;
             case self::BMP:
-                $this->image = imagecreatefromwbmp($this->pathToFile);
+                $this->resource = imagecreatefromwbmp($this->pathToFile);
                 break;
             default:
                 throw new ImageException("Unknown type of file " . ($this->pathToFile) . ".", ImageException::UnsupportedFormatException);
@@ -202,10 +205,10 @@ class Image
         $height = (int)$height;
         $tmpImage = imagecreatetruecolor($width, $height);
         imagefilledrectangle($tmpImage, 0, 0, $width, $height, $this->backgroundColor);
-        imagecopyresampled($tmpImage, $this->image, 0, 0, 0, 0, $width, $height, $this->width, $this->height);
+        imagecopyresampled($tmpImage, $this->resource, 0, 0, 0, 0, $width, $height, $this->width, $this->height);
         $this->width = $width;
         $this->height = $height;
-        $this->image = $tmpImage;
+        $this->resource = $tmpImage;
     }
 
     /**
@@ -243,7 +246,7 @@ class Image
      */
     public function rotate($angle)
     {
-        $this->setImage(imagerotate($this->image, $angle , $this->BackgroundColor));
+        $this->setResource(imagerotate($this->resource, $angle , $this->BackgroundColor));
     }
 
     /**
@@ -260,7 +263,29 @@ class Image
         $this->rotate(270);
     }
 
-    // TODO public function crop($fromX, $fromY, $toX, $toY)
+    /**
+     * Crops image via rectangle
+     *
+     * @param array $rectangle
+     * @throws ImageException If couldn't crop image.
+     */
+    public function crop(array $rectangle) {
+        $croppedImage = @imagecrop($this->resource, $rectangle);
+        if($croppedImage === false) {
+            $rectangleAsString = "{";
+            foreach($rectangle as $key => $value) {
+                $rectangleAsString .= "\"{$key}\" => {$value}, ";
+            }
+            $rectangleAsString = preg_replace("/, $/", "}", $rectangleAsString);
+            throw new ImageException(
+                "Can not crop image {$this} via rectangle {$rectangleAsString}.",
+                ImageException::GenericException
+            );
+        }
+        $this->resource = $croppedImage;
+        $this->width = $rectangle["width"];
+        $this->height = $rectangle["height"];
+    }
 
     /**
      * Joins images together
@@ -325,7 +350,7 @@ class Image
                 throw new ImageException("Position " . $position . " not found.", ImageException::OutOfRangeException);
                 break;
         }
-        imagecopy($this->image, $secondImage->Image, $x, $y, 0, 0, $secondImage->Width, $secondImage->Height);
+        imagecopy($this->resource, $secondImage->Resource, $x, $y, 0, 0, $secondImage->Width, $secondImage->Height);
     }
 
     /**
@@ -341,19 +366,19 @@ class Image
         switch ($this->type) {
             case self::GIF:
                 header("Content-Type: image/gif");
-                imagegif($this->image);
+                imagegif($this->resource);
                 break;
             case self::JPG:
                 header("Content-Type: image/jpeg");
-                imagejpeg($this->image, null, $this->jpgQuality);
+                imagejpeg($this->resource, null, $this->jpgQuality);
                 break;
             case self::PNG:
                 header("Content-Type: image/png");
-                imagepng($this->image);
+                imagepng($this->resource);
                 break;
             case self::BMP:
                 header("Content-Type: image/wbmp");
-                imagewbmp($this->image);
+                imagewbmp($this->resource);
                 break;
             default:
                 throw new ImageException("Unknown type of file " . ($this->pathToFile) . ".", ImageException::UnsupportedFormatException);
@@ -376,16 +401,16 @@ class Image
         if ($jpgQuality === null) $jpgQuality = $this->jpgQuality;
         switch ($type) {
             case self::GIF:
-                imagegif($this->image, $pathToFile);
+                imagegif($this->resource, $pathToFile);
                 break;
             case self::JPG:
-                imagejpeg($this->image, $pathToFile, $jpgQuality);
+                imagejpeg($this->resource, $pathToFile, $jpgQuality);
                 break;
             case self::PNG:
-                imagepng($this->image, $pathToFile);
+                imagepng($this->resource, $pathToFile);
                 break;
             case self::BMP:
-                imagewbmp($this->image, $pathToFile);
+                imagewbmp($this->resource, $pathToFile);
                 break;
             default:
                 throw new ImageException("Unknown type of file " . ($this->pathToFile) . ".", ImageException::UnsupportedFormatException);
@@ -399,10 +424,10 @@ class Image
      */
     public function close()
     {
-        @imagedestroy($this->image);
+        @imagedestroy($this->resource);
     }
-
     #endregion
+
     #region Getters and setters
     /**
      * Returns property value by name
@@ -422,9 +447,9 @@ class Image
                 return $this->height;
             case 'Type':
                 return $this->type;
-            case 'Image':
+            case 'Image': // TODO remove Image property
             case 'Resource':
-                return $this->image;
+                return $this->resource;
             case 'BackgroundColor':
                 return $this->backgroundColor;
             case "TransparentColor":
@@ -490,8 +515,8 @@ class Image
         $this->backgroundColor = (int)$backgroundColor;
         $tmpImage = imagecreatetruecolor($this->width, $this->height);
         imagefilledrectangle($tmpImage, 0, 0, $this->width, $this->height, $this->backgroundColor);
-        imagecopy($tmpImage, $this->image, 0, 0, 0, 0, $this->width, $this->height);
-        $this->image = $tmpImage;
+        imagecopy($tmpImage, $this->resource, 0, 0, 0, 0, $this->width, $this->height);
+        $this->resource = $tmpImage;
     }
 
     /**
@@ -502,7 +527,7 @@ class Image
     private function setTransparent($color)
     {
         $this->transparentColor = $color;
-        imagecolortransparent($this->image, (int)$this->transparentColor);
+        imagecolortransparent($this->resource, (int)$this->transparentColor);
     }
 
     /**
@@ -518,7 +543,5 @@ class Image
         }
         $this->jpgQuality = (int)$jpgQuality;
     }
-
     #endregion
-
 }

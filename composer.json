@@ -14,10 +14,19 @@
         "preferred-install": "dist"
     },
     "require": {
-        "php": ">=5.3"
+        "php": ">=5.4",
+        "petrknap/php-singleton": "~0.1"
     },
     "require-dev": {
         "phpunit/phpunit": ">=4.0"
+    },
+    "scripts": {
+        "test": [
+            "./vendor/bin/phpunit"
+        ],
+        "post-autoload-dump": [
+            "@test"
+        ]
     },
     "autoload": {
         "psr-4": {
