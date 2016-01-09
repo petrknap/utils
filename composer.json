@@ -15,6 +15,7 @@
     },
     "require": {
         "php": ">=5.4",
+        "petrknap/php-image": "0.9",
         "petrknap/php-singleton": "~0.1"
     },
     "require-dev": {
